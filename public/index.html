@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Urban Parking Hub</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .hero {
+      background-image: url('https://www.reliance-foundry.com/wp-content/uploads/parking-lot-safety.jpg');
+      background-size: cover;
+      background-position: center;
+      height: 90vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      color: white;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+    }
+
+    .hero p {
+      font-size: 1.4rem;
+      margin-bottom: 30px;
+      max-width: 600px;
+      text-shadow: 1px 1px 6px rgba(0,0,0,0.5);
+    }
+
+    .hero a {
+      padding: 15px 30px;
+      background-color: #3498db;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 6px;
+      transition: background-color 0.3s ease;
+    }
+
+    .hero a:hover {
+      background-color: #2980b9;
+    }
+
+    .features {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      padding: 40px 20px;
+      background-color: #f4f4f4;
+    }
+
+    .feature-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin: 20px;
+      padding: 20px;
+      max-width: 300px;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .feature-card img {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+
+    .feature-card h3 {
+      color: #2c3e50;
+      margin-bottom: 10px;
+    }
+
+    .feature-card p {
+      color: #555;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/">Home</a>
+    <a href="/book">Book Slot</a>
+    <a href="/unbook">Unbook Slot</a>
+    <a href="/recent">Recent Bookings</a>
+    <a href="/login">Login</a>
+  </nav>
+
+  <section class="hero">
+    <h1>Welcome to Urban Parking Hub</h1>
+    <p>Find, book, and manage your parking space easily in the city. Hassle-free parking at your fingertips.</p>
+    <a href="/book">Book a Slot Now</a>
+  </section>
+
+  <section class="features">
+    <div class="feature-card">
+      <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2f/84/ee/cd/parking.jpg?w=900&h=500&s=1" alt="Urban Parking">
+      <h3>City-Centered Locations</h3>
+      <p>Access parking spots across urban areas close to malls, offices, and restaurants.</p>
+    </div>
+
+    <div class="feature-card">
+      <img src="https://media.istockphoto.com/id/1272640739/photo/shopping-center-and-parking-lot.jpg?s=612x612&w=0&k=20&c=lqFnSnHgMo_eiQJAIlK6ch88oBUxNcWBDBcqLMZZLdc=" alt="Safe Parking">
+      <h3>Safe & Secure</h3>
+      <p>Your vehicle is safe with 24/7 monitored parking and smart entry systems.</p>
+    </div>
+
+    <div class="feature-card">
+      <img src="https://www.cprime.com/wp-content/uploads/2022/07/archerblogparking-availability-app_cprimestudios_image.jpeg" alt="Quick Booking">
+      <h3>Quick Booking</h3>
+      <p>Book your preferred slot in seconds with our user-friendly interface.</p>
+    </div>
+  </section>
+
+</body>
+</html>
