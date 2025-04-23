@@ -54,7 +54,7 @@
 
     .slots-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 20px;
       margin-top: 30px;
     }
@@ -84,6 +84,12 @@
       color: #34495e;
     }
 
+    .booking-time {
+      margin-top: 6px;
+      font-size: 13px;
+      color: #7f8c8d;
+    }
+
     .unbooked {
       background-color: #d1f2eb;
     }
@@ -98,7 +104,6 @@
   <nav>
     <a href="/">Home</a>
     <a href="/book">Book Slot</a>
-    <a href="/unbook">Unbook Slot</a>
     <a href="/recent">Recent Bookings</a>
     <a href="/login">Login</a>
   </nav>
@@ -123,46 +128,60 @@
     const bookedSlotsGrid = document.getElementById('bookedSlotsGrid');
     const unbookedSlotsGrid = document.getElementById('unbookedSlotsGrid');
 
-    // Mock data of booked and unbooked slots
-    const slots = Array.from({ length: 20 }, (_, i) => ({
-      id: i + 1,
-      isBooked: Math.random() > 0.3 // Randomize initial status (30% unbooked)
-    }));
+    // Fetch recent bookings from backend
+    async function fetchRecentBookings() {
+      try {
+        const response = await fetch('/api/recent-bookings');
+        const bookings = await response.json();
 
-    // Function to render the slots
-    function renderSlots() {
-      const bookedSlots = slots.filter(slot => slot.isBooked);
-      const unbookedSlots = slots.filter(slot => !slot.isBooked);
+        // Create a set of booked slot IDs from recent bookings
+        const bookedSlotIds = new Set(bookings.map(b => b.slotId));
 
-      // Clear previous grids
-      bookedSlotsGrid.innerHTML = "";
-      unbookedSlotsGrid.innerHTML = "";
+        // Prepare all slots (1 to 20)
+        const allSlots = Array.from({ length: 20 }, (_, i) => i + 1);
 
-      // Render Booked Slots
-      bookedSlots.forEach(slot => {
-        const card = document.createElement('div');
-        card.className = `slot-card booked`;
-        card.innerHTML = `
-          <div class="slot-number">Slot ${slot.id}</div>
-          <div class="slot-status">Booked</div>
-        `;
-        bookedSlotsGrid.appendChild(card);
-      });
+        // Clear previous grids
+        bookedSlotsGrid.innerHTML = "";
+        unbookedSlotsGrid.innerHTML = "";
 
-      // Render Unbooked Slots
-      unbookedSlots.forEach(slot => {
-        const card = document.createElement('div');
-        card.className = `slot-card unbooked`;
-        card.innerHTML = `
-          <div class="slot-number">Slot ${slot.id}</div>
-          <div class="slot-status">Available</div>
-        `;
-        unbookedSlotsGrid.appendChild(card);
-      });
+        // Render Booked Slots with booking time and date
+        bookings.forEach(booking => {
+          const card = document.createElement('div');
+          card.className = `slot-card booked`;
+          // Format bookingTime for display
+          const bookingDateTime = new Date(booking.bookingTime);
+          let displayDateTime = booking.bookingTime;
+          if (!isNaN(bookingDateTime)) {
+            displayDateTime = bookingDateTime.toLocaleString();
+          }
+          card.innerHTML = `
+            <div class="slot-number">Slot ${booking.slotId}</div>
+            <div class="slot-status">Booked</div>
+            <div class="booking-time">${displayDateTime}</div>
+          `;
+          bookedSlotsGrid.appendChild(card);
+        });
+
+        // Render Unbooked Slots
+        allSlots.forEach(slotId => {
+          if (!bookedSlotIds.has(slotId)) {
+            const card = document.createElement('div');
+            card.className = `slot-card unbooked`;
+            card.innerHTML = `
+              <div class="slot-number">Slot ${slotId}</div>
+              <div class="slot-status">Available</div>
+            `;
+            unbookedSlotsGrid.appendChild(card);
+          }
+        });
+
+      } catch (error) {
+        console.error('Error fetching recent bookings:', error);
+      }
     }
 
-    // Initial render
-    renderSlots();
+    // Initial fetch and render
+    fetchRecentBookings();
   </script>
 
 </body>

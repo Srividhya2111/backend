@@ -6,6 +6,61 @@
   <title>Book Slot</title>
   <link rel="stylesheet" href="style.css" />
   <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav {
+      background-color: #3498db;
+      padding: 10px;
+      display: flex;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      padding: 10px 20px;
+      margin: 0 10px;
+    }
+
+    nav a:hover {
+      background-color: #2980b9;
+      border-radius: 5px;
+    }
+
+    .container {
+      display: flex;
+      justify-content: space-between;
+      padding: 20px;
+    }
+
+    .booking-card {
+      flex: 0 0 60%;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .booking-details {
+      flex: 0 0 35%;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .booking-details h3 {
+      text-align: center;
+      color: #333;
+    }
+
     .slots-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -28,16 +83,40 @@
       box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
     }
 
-    .slot img {
-      width: 100%;
-      height: 120px;
-      object-fit: cover;
-      border-radius: 5px;
-    }
-
     .slot.selected {
       border: 3px solid green;
       background-color: #e0ffe0;
+    }
+
+    .slot.booked {
+      border: 3px solid red;
+      background-color: #f8d7da;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    button {
+      background-color: #3498db;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    .booking-info {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #555;
+    }
+
+    .booking-info span {
+      font-weight: bold;
     }
   </style>
 </head>
@@ -45,138 +124,43 @@
   <nav>
     <a href="/">Home</a>
     <a href="/book">Book Slot</a>
-    <a href="/unbook">Unbook Slot</a>
     <a href="/recent">Recent Bookings</a>
     <a href="/login">Login</a>
   </nav>
 
-  <div class="booking-card">
-    <h2>🚗 Book Your Parking Slot</h2>
-    <p>Select date, time, and click on a parking slot to reserve.</p>
-    <hr />
+  <div class="container">
+    <!-- Booking Form (left side) -->
+    <div class="booking-card">
+      <h2>🚗 Book Your Parking Slot</h2>
+      <p>Select date, time, and click on a parking slot to reserve.</p>
+      <hr />
+      <div class="form-group">
+        <label for="date">📅 Date:</label>
+        <input type="date" id="date" />
+      </div>
 
-    <div class="form-group">
-      <label for="date">📅 Date:</label>
-      <input type="date" id="date" />
+      <div class="form-group">
+        <label for="time">⏰ Time:</label>
+        <input type="time" id="time" />
+      </div>
+
+      <h3>🅿️ Select a Parking Slot</h3>
+      <div class="slots-grid" id="slots">
+        <!-- Slots populated by JS -->
+      </div>
+
+      <button id="bookBtn">✅ Book Selected Slot</button>
     </div>
 
-    <div class="form-group">
-      <label for="time">⏰ Time:</label>
-      <input type="time" id="time" />
+    <!-- Booking Details (right side) -->
+    <div class="booking-details" id="bookingDetails">
+      <h3>Booking Details</h3>
+      <p class="booking-info" id="slotInfo">No slot selected yet.</p>
+      <p class="booking-info" id="dateInfo">No date selected.</p>
+      <p class="booking-info" id="timeInfo">No time selected.</p>
     </div>
-
-    <h3>🅿️ Select a Parking Slot</h3>
-    <div class="slots-grid" id="slots">
-      <!-- Slots populated by JS -->
-    </div>
-
-    <button id="bookBtn">✅ Book Selected Slot</button>
   </div>
 
-  <script>
-    const slotsContainer = document.getElementById("slots");
-    const slotImages = [
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcReTk_uDbxmYnTWlVSKcJHWyqyzLLUjZS1d1g&s",
-      "https://platform.vox.com/wp-content/uploads/sites/2/chorus/uploads/chorus_asset/file/24641249/GettyImages_1354859135__1_.jpg?quality=90&strip=all&crop=0.036603221083453%2C0%2C99.926793557833%2C100&w=2400",
-      "https://www.oobeo.com/wp-content/uploads/2023/10/john-matychuk-yvfp5YHWGsc-unsplash-scaled.jpg",
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTiyXhrPPsLziNQu-KUF0sINJnKcw_Uocw6ng&sk",
-      "https://safestart.com/wp-content/uploads/2016/03/backed_in-780x517.jpg", // fixed URL
-      "https://www.bashyamgroup.com/static/c4b79cfc67e10134b5ffee1486059545/14b42/planning-for-your-vehicle-parking.jpg",
-      "https://img.staticmb.com/mbcontent/images/crop/uploads/2022/8/Laws-and-Parking-Rules-in-Residential-Areas-India_0_1200.jpg",
-      "https://thumbs.dreamstime.com/b/empty-car-parking-cars-spaces-sidewalk-pedestrians-flower-bed-d-render-153915727.jpg",
-      "https://5.imimg.com/data5/SELLER/Default/2024/9/451614922/OO/OB/TS/13726342/car-parking-slot-marking-service.jpg",
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQnoDuaCtvWKZOlFwb3FEy2KUJrcsLHNmIBEg&s",
-    ];
-
-    let selectedSlot = null;
-
-    // Populate 20 slots
-    for (let i = 1; i <= 20; i++) {
-      const slot = document.createElement("div");
-      slot.classList.add("slot");
-      slot.dataset.slotNumber = i;
-
-      // Use a random image for each slot
-      const imgSrc = slotImages[i % slotImages.length];
-
-      slot.innerHTML = `
-        <img src="${imgSrc}" alt="Slot ${i}">
-        <p>Slot ${i}</p>
-      `;
-
-      // Add click event listener to select slot
-      slot.addEventListener("click", function () {
-        document.querySelectorAll(".slot").forEach(s => s.classList.remove("selected"));
-        slot.classList.add("selected");
-        selectedSlot = i;
-      });
-
-      slotsContainer.appendChild(slot);
-    }
-
-    // Book button event
-    document.getElementById("bookBtn").addEventListener("click", function () {
-      const date = document.getElementById("date").value;
-      const time = document.getElementById("time").value;
-
-      if (!date || !time || !selectedSlot) {
-        alert("Please select date, time, and a slot!");
-        return;
-      }
-
-      alert(`Booking confirmed for Slot ${selectedSlot} on ${date} at ${time}`);
-      // TODO: Send booking data to server via fetch()
-    });
-    document.getElementById('bookForm').addEventListener('submit', function(event) {
-      event.preventDefault();
-      
-      const slotId = document.getElementById('slotId').value;
-      const bookingTime = document.getElementById('bookingTime').value;
-      
-      // Send the booking information to the backend (using Fetch API)
-      fetch('/api/book-slot', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ slotId, bookingTime })
-      })
-      .then(response => response.json())
-      .then(data => {
-        alert('Slot booked successfully!');
-        window.location.href = '/recent'; // Redirect to recent bookings page
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Booking failed!');
-      });
-    });
-    document.getElementById('bookingForm').addEventListener('submit', function (event) {
-      event.preventDefault();
-      
-      const slotId = document.getElementById('slotId').value;
-      const bookingTime = document.getElementById('bookingTime').value;
-      
-      // Send booking details to the server
-      fetch('/api/book-slot', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ slotId, bookingTime })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.message === 'Slot booked successfully') {
-          alert('Slot booked successfully!');
-          window.location.href = '/recent'; // Redirect to recent bookings page
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Error booking slot');
-      });
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>

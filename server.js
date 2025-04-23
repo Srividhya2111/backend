@@ -4,7 +4,14 @@ const path = require('path');
 
 const app = express();
 
-mongoose.connect("mongodb://localhost:27017/user", { useNewUrlParser: true, useUnifiedTopology: true });
+const PORT = process.env.PORT || 3000;
+
+mongoose.connect("mongodb://localhost:27017/user")
+  .then(() => console.log("Connected to MongoDB successfully"))
+  .catch(err => {
+    console.error("Failed to connect to MongoDB", err);
+    process.exit(1);
+  });
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -19,24 +26,31 @@ const userSchema = new mongoose.Schema({
 });
 const User = mongoose.model("User", userSchema);
 
-// Booking Schema (Only one definition)
+// Booking Schema
 const bookingSchema = new mongoose.Schema({
     slotId: Number,
     bookingTime: String,
     bookedAt: { type: Date, default: Date.now }
 });
-
 const Booking = mongoose.model('Booking', bookingSchema);
 
 // API endpoint to handle slot booking
-app.post('/api/book-slot', (req, res) => {
+app.post('/api/book-slot', async (req, res) => {
     const { slotId, bookingTime } = req.body;
-    
-    const newBooking = new Booking({ slotId, bookingTime });
 
-    newBooking.save()
-        .then(() => res.status(200).json({ message: 'Slot booked successfully' }))
-        .catch(err => res.status(500).json({ message: 'Error booking slot', error: err }));
+    try {
+        // Check if slot is already booked for the same bookingTime
+        const existingBooking = await Booking.findOne({ slotId: slotId, bookingTime: bookingTime });
+        if (existingBooking) {
+            return res.status(400).json({ message: 'Slot already booked for the selected date and time' });
+        }
+
+        const newBooking = new Booking({ slotId, bookingTime });
+        await newBooking.save();
+        res.status(200).json({ message: 'Slot booked successfully' });
+    } catch (err) {
+        res.status(500).json({ message: 'Error booking slot', error: err });
+    }
 });
 
 // API endpoint to get recent bookings
@@ -96,37 +110,25 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// Book Slot (Another method for handling booking, but redundant now with '/api/book-slot')
-app.post('/book-slot', async (req, res) => {
-    const { date, time, slotNumber, state, city } = req.body;
-    const booking = new Booking({ date, time, slotNumber, state, city });
-    await booking.save();
-    res.json({ message: 'Booking saved successfully!' });
-});
+// Removed redundant '/book-slot' POST endpoint that used inconsistent fields
 
 // Get Bookings
 app.get('/get-bookings', async (req, res) => {
-    const bookings = await Booking.find();
-    res.json(bookings);
+    const { date, time } = req.query;
+    let filter = {};
+    if (date && time) {
+        const bookingTime = `${date} ${time}`;
+        filter.bookingTime = bookingTime;
+    }
+    try {
+        const bookings = await Booking.find(filter);
+        res.json(bookings);
+    } catch (err) {
+        res.status(500).json({ message: 'Error fetching bookings', error: err });
+    }
 });
-app.post('/api/book-slot', (req, res) => {
-    const { slotId, bookingTime } = req.body;
-  
-    const newBooking = new Booking({ slotId, bookingTime });
-  
-    newBooking.save()
-      .then(() => res.status(200).json({ message: 'Slot booked successfully' }))
-      .catch(err => res.status(500).json({ message: 'Error booking slot', error: err }));
-  });
-  
-  // API endpoint to fetch recent bookings
-  app.get('/api/recent-bookings', (req, res) => {
-    Booking.find().sort({ bookedAt: -1 }) // Sort by most recent booking
-      .then(bookings => res.status(200).json(bookings))
-      .catch(err => res.status(500).json({ message: 'Error fetching bookings', error: err }));
-  });
 
 // Start server
-app.listen(3000, () => {
-    console.log("Server is running on http://localhost:3000");
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
